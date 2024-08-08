@@ -1,9 +1,10 @@
 import type { SVGProps } from 'react'
 
+import React from 'react'
 import * as Checkbox from '@radix-ui/react-checkbox'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 import { api } from '@/utils/client/api'
-
 /**
  * QUESTION 3:
  * -----------
@@ -62,31 +63,118 @@ import { api } from '@/utils/client/api'
  * Documentation references:
  *  - https://auto-animate.formkit.com
  */
+const FILTERS = {
+  ALL: 'all' as const,
+  PENDING: 'pending' as const,
+  COMPLETED: 'completed' as const,
+}
 
-export const TodoList = () => {
-  const { data: todos = [] } = api.todo.getAll.useQuery({
-    statuses: ['completed', 'pending'],
+type Todo = {
+  id: number
+  body: string
+  status: 'pending' | 'completed'
+}
+
+type TodoItemProps = {
+  todo: Todo
+  onUpdateStatus: (id: number, currentStatus: 'pending' | 'completed') => void
+  onDelete: (id: number) => void
+}
+
+const TodoItem: React.FC<TodoItemProps> = ({
+  todo,
+  onUpdateStatus,
+  onDelete,
+}) => {
+  return (
+    <li
+      className={`flex items-center rounded-12 border border-gray-200 px-4 py-3 shadow-sm ${
+        todo.status === 'completed' ? 'bg-gray-300' : ''
+      }`}
+    >
+      <Checkbox.Root
+        id={String(todo.id)}
+        checked={todo.status === 'completed'}
+        onCheckedChange={() => onUpdateStatus(todo.id, todo.status)}
+        className="flex h-6 w-6 items-center justify-center rounded-6 border border-gray-300 focus:border-gray-700 focus:outline-none data-[state=checked]:border-gray-700 data-[state=checked]:bg-gray-700"
+      >
+        <Checkbox.Indicator>
+          <CheckIcon className="h-4 w-4 text-white" />
+        </Checkbox.Indicator>
+      </Checkbox.Root>
+      <label
+        className={`block pl-3 font-medium ${
+          todo.status === 'completed' ? 'text-gray-600 line-through' : ''
+        }`}
+        htmlFor={String(todo.id)}
+      >
+        {todo.body}
+      </label>
+      <button
+        onClick={() => onDelete(todo.id)}
+        className="ml-auto p-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+        aria-label={`Delete todo ${todo.body}`}
+      >
+        <XMarkIcon className="h-5 w-5" />
+      </button>
+    </li>
+  )
+}
+
+type TodoListProps = {
+  filter: 'all' | 'pending' | 'completed'
+}
+
+export const TodoList: React.FC<TodoListProps> = ({ filter }) => {
+  const { data: todos = [], refetch } = api.todo.getAll.useQuery({
+    statuses:
+      filter === FILTERS.ALL ? [FILTERS.PENDING, FILTERS.COMPLETED] : [filter],
+  })
+
+  const { mutate: updateTodoStatus } = api.todoStatus.update.useMutation({
+    onSuccess: () => {
+      refetch()
+    },
+  })
+
+  const { mutate: deleteTodo } = api.todo.delete.useMutation({
+    onSuccess: () => {
+      refetch()
+    },
+  })
+
+  const [parent] = useAutoAnimate()
+
+  const handleStatusChange = (
+    id: number,
+    currentStatus: 'pending' | 'completed'
+  ) => {
+    updateTodoStatus({
+      todoId: id,
+      status: currentStatus === 'pending' ? 'completed' : 'pending',
+    })
+  }
+
+  const handleDelete = (id: number) => {
+    deleteTodo({ id })
+  }
+
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === FILTERS.ALL) {
+      return true
+    }
+    return todo.status === filter
   })
 
   return (
-    <ul className="grid grid-cols-1 gap-y-3">
-      {todos.map((todo) => (
-        <li key={todo.id}>
-          <div className="flex items-center rounded-12 border border-gray-200 px-4 py-3 shadow-sm">
-            <Checkbox.Root
-              id={String(todo.id)}
-              className="flex h-6 w-6 items-center justify-center rounded-6 border border-gray-300 focus:border-gray-700 focus:outline-none data-[state=checked]:border-gray-700 data-[state=checked]:bg-gray-700"
-            >
-              <Checkbox.Indicator>
-                <CheckIcon className="h-4 w-4 text-white" />
-              </Checkbox.Indicator>
-            </Checkbox.Root>
-
-            <label className="block pl-3 font-medium" htmlFor={String(todo.id)}>
-              {todo.body}
-            </label>
-          </div>
-        </li>
+    <ul ref={parent} className="grid grid-cols-1 gap-y-3">
+      {filteredTodos.map((todo) => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          onUpdateStatus={handleStatusChange}
+          onDelete={handleDelete}
+        />
       ))}
     </ul>
   )

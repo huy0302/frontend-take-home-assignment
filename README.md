@@ -58,9 +58,9 @@ you do them in order. There are further instructions embeded in the questions.
   - [Question 6](https://github.com/TheNowProject/frontend-take-home-assignment/blob/main/src/pages/index.tsx#L5)
 
 
-Questions 1, 3, 4 and 6 will require you to build/make changes to the UI base on
-design on Figma. You can view it via the link below. You must have a Figma
-account (free) in order to use it effectively.
+  Questions 1, 3, 4 and 6 will require you to build/make changes to the UI base on
+  design on Figma. You can view it via the link below. You must have a Figma
+  account (free) in order to use it effectively.
 
   - https://www.figma.com/file/z0g8tEGAMIooVA0nZjjDDY/Todo-test?node-id=0%3A1&mode=dev
 
@@ -83,11 +83,11 @@ to the repo via email to `binhdv@thenowproject.com.vn` and
 
 ## Checklist
 
-  - [ ] Finish Question 1
-  - [ ] Finish Question 2
-  - [ ] Finish Question 3
-  - [ ] Finish Question 4
-  - [ ] Finish Question 5
-  - [ ] Finish Question 6
-  - [ ] Run `yarn lint` with no errors
-  - [ ] Run `yarn type-check` with no errors
+  - [done] Finish Question 1
+  - [done] Finish Question 2
+  - [done] Finish Question 3
+  - [done] Finish Question 4
+  - [done] Finish Question 5
+  - [done] Finish Question 6
+  - [done] Run `yarn lint` with no errors
+  - [done] Run `yarn type-check` with no errors

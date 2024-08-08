@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
 import { api } from '@/utils/client/api'
-
 /**
  * QUESTION 1:
  * -----------
@@ -22,7 +21,6 @@ import { api } from '@/utils/client/api'
  * Currently our form is not keyboard accessible. Users cannot hit
  * <Enter> right after typing to submit the form (add new todo). Fix this issue.
  */
-
 export const CreateTodoForm = () => {
   const [todoBody, setTodoBody] = useState('')
 
@@ -35,8 +33,22 @@ export const CreateTodoForm = () => {
       },
     })
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (todoBody.trim() === '') {
+      return
+    }
+    createTodo({
+      body: todoBody,
+    })
+    setTodoBody('')
+  }
+
   return (
-    <form className="group flex items-center justify-between rounded-12 border border-gray-200 py-2 pr-4 focus-within:border-gray-400">
+    <form
+      className="rounded-lg group flex items-center justify-between border border-gray-200 py-2 pr-4 focus-within:border-gray-400"
+      onSubmit={handleSubmit}
+    >
       <label htmlFor={TODO_INPUT_ID} className="sr-only">
         Add todo
       </label>
@@ -46,21 +58,14 @@ export const CreateTodoForm = () => {
         type="text"
         placeholder="Add todo"
         value={todoBody}
-        onChange={(e) => {
-          setTodoBody(e.target.value)
-        }}
+        onChange={(e) => setTodoBody(e.target.value)}
         className="flex-1 px-4 text-base placeholder:text-gray-400 focus:outline-none"
       />
 
       <button
-        type="button"
+        type="submit"
         disabled={isCreatingTodo}
-        onClick={() => {
-          createTodo({
-            body: todoBody,
-          })
-          setTodoBody('')
-        }}
+        className="rounded-full bg-gray-800 px-4 py-2 font-bold text-white shadow transition duration-300 ease-in-out hover:bg-gray-900 focus:outline-none"
       >
         Add
       </button>
